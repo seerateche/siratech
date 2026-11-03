@@ -1,6 +1,6 @@
 name: Build APK
 
-# Runs manually from the GitHub website: Actions tab → "Build APK" → Run workflow.
+# Runs manually from the GitHub website: Actions tab -> "Build APK" -> Run workflow.
 # After ~10-15 min, download the "sira-tech-apk" artifact = your installable APK.
 on:
   workflow_dispatch:
@@ -30,7 +30,12 @@ jobs:
           ls -la assets/fonts
 
       - name: Enable font asset in pubspec
-        run: python3 -c "s=open('pubspec.yaml').read(); s=s.replace('  # assets:', '  assets:').replace('  #   - assets/fonts/Amiri.ttf', '    - assets/fonts/Amiri.ttf'); open('pubspec.yaml','w').write(s)"
+        run: |
+          python3 - <<'PYEOF'
+          s = open("pubspec.yaml").read()
+          s = s.replace("  # assets:\n  #   - assets/fonts/Amiri.ttf", "  assets:\n    - assets/fonts/Amiri.ttf")
+          open("pubspec.yaml","w").write(s)
+          PYEOF
 
       - name: minSdkVersion 24 (ffmpeg_kit requirement)
         run: |
