@@ -1,0 +1,47 @@
+name: Build APK
+
+# Runs manually from the GitHub website: Actions tab → "Build APK" → Run workflow.
+# After ~10-15 min, download the "sira-tech-apk" artifact = your installable APK.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Complete Android scaffolding
+        run: flutter create --platforms=android --org com.siratech .
+
+      - name: Download Amiri font (Arabic captions)
+        run: |
+          mkdir -p assets/fonts
+          curl -L -o assets/fonts/Amiri.ttf https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf
+          ls -la assets/fonts
+
+      - name: Enable font asset in pubspec
+        run: python3 -c "s=open('pubspec.yaml').read(); s=s.replace('  # assets:', '  assets:').replace('  #   - assets/fonts/Amiri.ttf', '    - assets/fonts/Amiri.ttf'); open('pubspec.yaml','w').write(s)"
+
+      - name: minSdkVersion 24 (ffmpeg_kit requirement)
+        run: |
+          sed -i 's/minSdkVersion [0-9]*/minSdkVersion 24/' android/app/build.gradle || true
+          sed -i 's/minSdk = [0-9]*/minSdk = 24/' android/app/build.gradle || true
+
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sira-tech-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
