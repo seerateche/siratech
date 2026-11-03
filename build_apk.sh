@@ -40,6 +40,11 @@ echo "==> [4/6] Setting minSdkVersion 24 in android/app/build.gradle..."
 if [ -f android/app/build.gradle ]; then
   sed -i.bak 's/minSdkVersion [0-9]*/minSdkVersion 24/' android/app/build.gradle
   sed -i.bak 's/minSdk = [0-9]*/minSdk = 24/' android/app/build.gradle
+  sed -i.bak 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' android/app/build.gradle
+  sed -i.bak 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/' android/app/build.gradle
+  sed -i.bak 's/compileSdk flutter.compileSdkVersion/compileSdk 36/' android/app/build.gradle
+  sed -i.bak 's/compileSdkVersion [0-9]\+/compileSdkVersion 36/' android/app/build.gradle
+  sed -i.bak 's/compileSdk = [0-9]\+/compileSdk = 36/' android/app/build.gradle
 fi
 
 echo "==> [5/6] flutter pub get..."
