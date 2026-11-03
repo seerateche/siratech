@@ -1,0 +1,8 @@
+Required font files (free, Google Fonts / SIL OFL):
+
+1) Amiri.ttf  -> REQUIRED for Arabic captions burned into video.
+   Download: https://fonts.google.com/specimen/Amiri
+   Then uncomment the `assets:` and `fonts:` blocks in pubspec.yaml.
+
+2) Optional (UI typography):
+   Cairo-Regular.ttf / Cairo-Bold.ttf  -> https://fonts.google.com/specimen/Cairo
