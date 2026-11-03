@@ -47,7 +47,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.gold, width: 1.6),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
