@@ -19,7 +19,7 @@ dependencies:
   flutter_secure_storage: ^9.2.0
   image_picker: ^1.1.2
   image: ^4.2.0
-  ffmpeg_kit_flutter_full_gpl: ^6.0.3
+  ffmpeg_kit_flutter_new: ^4.6.1
   video_player: ^2.9.0
   share_plus: ^10.0.0
   gal: ^1.6.0
