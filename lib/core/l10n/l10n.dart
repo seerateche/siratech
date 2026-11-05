@@ -1,7 +1,5 @@
-/**
- * Tiny hand-rolled localization (no codegen needed for Phase 1).
- * Arabic is the default; English is the fallback.
- */
+/// Tiny hand-rolled localization (no codegen needed for Phase 1).
+/// Arabic is the default; English is the fallback.
 class L10n {
   final String lang;
   L10n(this.lang);

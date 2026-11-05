@@ -141,7 +141,7 @@ class FfmpegComposer implements VideoComposer {
     required double end,
     int outline = 2,
   }) {
-    final fontArg = font.isEmpty ? '' : "fontfile='$_q(font)':";
+    final fontArg = font.isEmpty ? '' : "fontfile='${_q(font)}':";
     return "drawtext=${fontArg}text='${escapeDrawtext(text)}':fontsize=$size:"
         "fontcolor=$color:borderw=$outline:bordercolor=black@0.65:"
         "x=(w-text_w)/2:y=$y:"

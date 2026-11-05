@@ -97,7 +97,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   Future<void> _resend() async {
     final v = _order?.videoPath;
     if (v != null && v.isNotEmpty && await File(v).exists()) {
-      await Share.shareXFiles([XFile(v)], text: 'Sira Tech Creative Studio');
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(v)], text: 'Sira Tech Creative Studio'),
+      );
     }
   }
 
