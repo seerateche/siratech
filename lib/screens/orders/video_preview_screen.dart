@@ -101,7 +101,9 @@ class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
   Future<void> _share() async {
     final v = _order?.videoPath;
     if (v != null && v.isNotEmpty && await File(v).exists()) {
-      await Share.shareXFiles([XFile(v)], text: 'Sira Tech Creative Studio');
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(v)], text: 'Sira Tech Creative Studio'),
+      );
     }
   }
 
