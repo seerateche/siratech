@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
@@ -24,12 +24,16 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (Release)
-        run: flutter build apk --release
-
-      - name: Locate generated APK
         run: |
-          echo "Listing all built APK files:"
-          find . -name "*.apk"
+          set +e
+          flutter build apk --release > build_out.txt 2>&1
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            tail -n 50 build_out.txt
+            ERR_MSG=$(tail -n 15 build_out.txt | tr '\n' ' ' | sed 's/"//g')
+            echo "::error title=BuildFailure::$ERR_MSG"
+            exit $EXIT_CODE
+          fi
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
