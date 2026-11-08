@@ -29,10 +29,23 @@ jobs:
         run: flutter pub get
 
       - name: Analyze Dart code
+        run: flutter analyze
+
+      - name: Build APK (Release)
+        run: flutter build apk --release
+
+      - name: Locate built APK
         run: |
-          set +e
-          flutter analyze > analyze_out.txt 2>&1
-          cat analyze_out.txt
-          ERR_MSG=$(head -n 20 analyze_out.txt | tr '\n' ' ' | sed 's/"//g')
-          echo "::error title=AnalyzeError::$ERR_MSG"
-          exit 1
+          echo "Built APK files:"
+          find . -name "*.apk"
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sira-tech-apk
+          path: |
+            build/**/*.apk
+            **/app-release.apk
+            **/app-*.apk
+          if-no-files-found: error
+          retention-days: 7

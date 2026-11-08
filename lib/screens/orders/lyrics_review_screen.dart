@@ -46,6 +46,7 @@ class _LyricsReviewScreenState extends ConsumerState<LyricsReviewScreen> {
   Future<void> _generate() async {
     final l = L10n(Localizations.localeOf(context).languageCode);
     final gen = await ref.read(llmGeneratorProvider.future);
+    if (!mounted) return;
     if (gen == null || _order == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.t('needApiKey'))));

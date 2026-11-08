@@ -102,7 +102,7 @@ class FfmpegComposer implements VideoComposer {
 
     final audioIdx = photoPaths.length;
     final cmd =
-        '${inputs}-filter_complex "${buffer.toString()}" '
+        '$inputs-filter_complex "${buffer.toString()}" '
         '-map "[vout]" -map "$audioIdx:a" '
         '-c:v libx264 -preset veryfast -crf 23 -pix_fmt yuv420p '
         '-c:a aac -b:a 192k -t ${totalSec.toStringAsFixed(2)} '

@@ -35,11 +35,11 @@ class _MusicScreenState extends ConsumerState<MusicScreen> {
   Future<void> _pickAudio() async {
     setState(() => _picking = true);
     try {
-      final r = await FilePicker.platform.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['mp3', 'm4a', 'aac', 'wav'],
       );
-      final path = r?.files.single.path;
+      final path = file?.path;
       final o = _order;
       if (path == null || o == null) return;
       final repo = ref.read(orderRepositoryProvider);

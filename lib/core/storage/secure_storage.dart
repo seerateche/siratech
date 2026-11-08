@@ -16,9 +16,7 @@ class LlmSettings {
 
 class SecureStorage {
   SecureStorage._();
-  static const _s = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
+  static const _s = FlutterSecureStorage();
 
   static Future<LlmSettings> read() async {
     return LlmSettings(
