@@ -43,4 +43,6 @@ android/key.properties
 # Downloaded assets (fetched at build time)
 
 # Script backups
+*.apk
+*.aab
 *.bak
