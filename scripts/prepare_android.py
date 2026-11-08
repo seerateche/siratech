@@ -17,17 +17,19 @@ for p in [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")
         p.write_text(txt, encoding="utf-8")
         print(f"==> Patched minSdk 24 & compileSdk 35 in {p}")
 
-# 2. Force compileSdk 35 on all subproject plugins (fixes :gal compilation against modern AndroidX)
+# 2. Force compileSdk 35 on all subproject plugins using plugins.withId (NO afterEvaluate)
 bg_kts = Path("android/build.gradle.kts")
 if bg_kts.exists():
     content = bg_kts.read_text(encoding="utf-8")
     extra = """
 subprojects {
-    afterEvaluate {
-        if (project.hasProperty("android")) {
-            val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-            android?.compileSdkVersion(35)
-        }
+    plugins.withId("com.android.library") {
+        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+        android?.compileSdkVersion(35)
+    }
+    plugins.withId("com.android.application") {
+        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+        android?.compileSdkVersion(35)
     }
 }
 """
@@ -41,12 +43,11 @@ if bg_groovy.exists():
     content = bg_groovy.read_text(encoding="utf-8")
     extra = """
 subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty('android')) {
-            project.android {
-                compileSdkVersion 35
-            }
-        }
+    plugins.withId('com.android.library') {
+        android.compileSdkVersion 35
+    }
+    plugins.withId('com.android.application') {
+        android.compileSdkVersion 35
     }
 }
 """
