@@ -17,44 +17,34 @@ for p in [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")
         p.write_text(txt, encoding="utf-8")
         print(f"==> Patched minSdk 24 & compileSdk 36 in {p}")
 
-# 2. Force compileSdk 36 on all subproject plugins using plugins.withId (NO afterEvaluate)
+# 2. Add subprojects fallback rule
 bg_kts = Path("android/build.gradle.kts")
 if bg_kts.exists():
     content = bg_kts.read_text(encoding="utf-8")
     extra = """
 subprojects {
-    plugins.withId("com.android.library") {
-        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        android?.compileSdkVersion(36)
+    val configureAndroid = {
+        val ext = project.extensions.findByName("android")
+        if (ext != null) {
+            try {
+                val method = ext.javaClass.getMethod("compileSdkVersion", Int::class.javaPrimitiveType)
+                method.invoke(ext, 36)
+            } catch (_: Exception) {}
+        }
     }
-    plugins.withId("com.android.application") {
-        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        android?.compileSdkVersion(36)
+    if (project.state.executed) {
+        configureAndroid()
+    } else {
+        project.afterEvaluate {
+            configureAndroid()
+        }
     }
 }
 """
-    if "compileSdkVersion(36)" not in content:
+    if "configureAndroid" not in content:
         content += extra
         bg_kts.write_text(content, encoding="utf-8")
         print("==> Added compileSdk 36 rule to android/build.gradle.kts")
-
-bg_groovy = Path("android/build.gradle")
-if bg_groovy.exists():
-    content = bg_groovy.read_text(encoding="utf-8")
-    extra = """
-subprojects {
-    plugins.withId('com.android.library') {
-        android.compileSdkVersion 36
-    }
-    plugins.withId('com.android.application') {
-        android.compileSdkVersion 36
-    }
-}
-"""
-    if "compileSdkVersion 36" not in content:
-        content += extra
-        bg_groovy.write_text(content, encoding="utf-8")
-        print("==> Added compileSdk 36 rule to android/build.gradle")
 
 # 3. Add required permissions to AndroidManifest.xml
 manifest_path = Path("android/app/src/main/AndroidManifest.xml")
