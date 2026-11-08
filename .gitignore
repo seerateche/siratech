@@ -41,7 +41,6 @@ android/key.properties
 *.keystore
 
 # Downloaded assets (fetched at build time)
-assets/fonts/Amiri.ttf
 
 # Script backups
 *.bak
