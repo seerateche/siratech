@@ -58,7 +58,6 @@ class FfmpegComposer implements VideoComposer {
     }
 
     final concatIn = List.generate(photoPaths.length, (i) => '[s$i]').join();
-    var chainLabel = '[cat]';
 
     // ---- captions (kept inside top/bottom safe zones for 9:16 & 1:1) ----
     final ar = L10n('ar');

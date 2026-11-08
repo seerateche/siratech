@@ -20,9 +20,6 @@ jobs:
         with:
           channel: stable
 
-      - name: Complete Android scaffolding
-        run: flutter create --platforms=android --org com.siratech .
-
       - name: Download Amiri font (Arabic captions)
         run: |
           mkdir -p assets/fonts
@@ -36,11 +33,6 @@ jobs:
           s = s.replace("  # assets:\n  #   - assets/fonts/Amiri.ttf", "  assets:\n    - assets/fonts/Amiri.ttf")
           open("pubspec.yaml","w").write(s)
           PYEOF
-
-      - name: minSdkVersion 24 (ffmpeg_kit requirement)
-        run: |
-          sed -i 's/minSdkVersion [0-9]*/minSdkVersion 24/' android/app/build.gradle || true
-          sed -i 's/minSdk = [0-9]*/minSdk = 24/' android/app/build.gradle || true
 
       - run: flutter pub get
       - run: flutter build apk --release

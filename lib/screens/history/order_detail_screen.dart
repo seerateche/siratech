@@ -63,7 +63,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       createdAt: DateTime.now(),
     );
     await repo.save(copy);
-    final newDir = await repo.orderDir(copy.id);
     final photos = <String>[];
     for (var i = 0; i < o.photoPaths.length; i++) {
       if (await File(o.photoPaths[i]).exists()) {
