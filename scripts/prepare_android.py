@@ -6,18 +6,18 @@ from pathlib import Path
 print("==> Regenerating Android scaffolding with flutter create...")
 subprocess.run(["flutter", "create", "--platforms=android", "--org", "com.siratech.sira_tech_studio", "."], check=True)
 
-# 1. Patch minSdk to 24 and compileSdk to 35 in app build.gradle(.kts)
+# 1. Patch minSdk to 24 and compileSdk to 36 in app build.gradle(.kts)
 for p in [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")]:
     if p.exists():
         txt = p.read_text(encoding="utf-8")
         txt = re.sub(r'minSdk\s*=\s*(?:flutter\.minSdkVersion|\d+)', 'minSdk = 24', txt)
         txt = re.sub(r'minSdkVersion\s+(?:flutter\.minSdkVersion|\d+)', 'minSdkVersion 24', txt)
-        txt = re.sub(r'compileSdk\s*=\s*(?:flutter\.compileSdkVersion|\d+)', 'compileSdk = 35', txt)
-        txt = re.sub(r'compileSdkVersion\s+(?:flutter\.compileSdkVersion|\d+)', 'compileSdkVersion 35', txt)
+        txt = re.sub(r'compileSdk\s*=\s*(?:flutter\.compileSdkVersion|\d+)', 'compileSdk = 36', txt)
+        txt = re.sub(r'compileSdkVersion\s+(?:flutter\.compileSdkVersion|\d+)', 'compileSdkVersion 36', txt)
         p.write_text(txt, encoding="utf-8")
-        print(f"==> Patched minSdk 24 & compileSdk 35 in {p}")
+        print(f"==> Patched minSdk 24 & compileSdk 36 in {p}")
 
-# 2. Force compileSdk 35 on all subproject plugins using plugins.withId (NO afterEvaluate)
+# 2. Force compileSdk 36 on all subproject plugins using plugins.withId (NO afterEvaluate)
 bg_kts = Path("android/build.gradle.kts")
 if bg_kts.exists():
     content = bg_kts.read_text(encoding="utf-8")
@@ -25,18 +25,18 @@ if bg_kts.exists():
 subprojects {
     plugins.withId("com.android.library") {
         val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        android?.compileSdkVersion(35)
+        android?.compileSdkVersion(36)
     }
     plugins.withId("com.android.application") {
         val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        android?.compileSdkVersion(35)
+        android?.compileSdkVersion(36)
     }
 }
 """
-    if "compileSdkVersion(35)" not in content:
+    if "compileSdkVersion(36)" not in content:
         content += extra
         bg_kts.write_text(content, encoding="utf-8")
-        print("==> Added compileSdk 35 rule to android/build.gradle.kts")
+        print("==> Added compileSdk 36 rule to android/build.gradle.kts")
 
 bg_groovy = Path("android/build.gradle")
 if bg_groovy.exists():
@@ -44,17 +44,17 @@ if bg_groovy.exists():
     extra = """
 subprojects {
     plugins.withId('com.android.library') {
-        android.compileSdkVersion 35
+        android.compileSdkVersion 36
     }
     plugins.withId('com.android.application') {
-        android.compileSdkVersion 35
+        android.compileSdkVersion 36
     }
 }
 """
-    if "compileSdkVersion 35" not in content:
+    if "compileSdkVersion 36" not in content:
         content += extra
         bg_groovy.write_text(content, encoding="utf-8")
-        print("==> Added compileSdk 35 rule to android/build.gradle")
+        print("==> Added compileSdk 36 rule to android/build.gradle")
 
 # 3. Add required permissions to AndroidManifest.xml
 manifest_path = Path("android/app/src/main/AndroidManifest.xml")
@@ -62,7 +62,10 @@ if manifest_path.exists():
     mtxt = manifest_path.read_text(encoding="utf-8")
     perms = """    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n"""
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n"""
     if "android.permission.INTERNET" not in mtxt:
         mtxt = mtxt.replace("<application", perms + "    <application")
         manifest_path.write_text(mtxt, encoding="utf-8")
