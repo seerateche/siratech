@@ -1,7 +1,5 @@
 name: Build APK
 
-# Runs manually or on push: Actions tab -> "Build APK"
-# After ~10-15 min, download the "sira-tech-apk" artifact = your installable APK.
 on:
   workflow_dispatch:
   push:
@@ -26,9 +24,19 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (Release)
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release -v 2>&1 | tee build_output.log
+
+      - name: Upload Build Output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build_output.log
+          retention-days: 3
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: sira-tech-apk
           path: build/app/outputs/flutter-apk/app-release.apk
