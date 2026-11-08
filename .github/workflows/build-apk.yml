@@ -32,7 +32,22 @@ jobs:
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build APK (Release)
-        run: flutter build apk --release
+        run: |
+          set -o pipefail
+          flutter build apk --release 2>&1 | tee build_err.log || {
+            tail -n 60 build_err.log
+            ERR_MSG=$(tail -n 25 build_err.log | tr '\n' ' ' | sed 's/"//g' | cut -c 1-500)
+            echo "::error title=GradleBuildError::$ERR_MSG"
+            exit 1
+          }
+
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-log
+          path: build_err.log
+          retention-days: 3
 
       - name: Locate built APK
         run: |
