@@ -20,34 +20,10 @@ jobs:
         with:
           channel: stable
 
-      - name: Regenerate native Android scaffolding for current Flutter version
+      - name: Prepare native Android project
         run: |
           rm -rf android
-          flutter create --platforms=android --org com.siratech.sira_tech_studio .
-          
-          # Ensure minSdk is at least 24 for ffmpeg_kit
-          python3 - <<'PYEOF'
-          from pathlib import Path
-          import re
-          for p in [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")]:
-              if p.exists():
-                  txt = p.read_text()
-                  txt = re.sub(r'minSdk\s*=\s*(?:flutter\.minSdkVersion|\d+)', 'minSdk = 24', txt)
-                  txt = re.sub(r'minSdkVersion\s+(?:flutter\.minSdkVersion|\d+)', 'minSdkVersion 24', txt)
-                  p.write_text(txt)
-                  print("Patched minSdk 24 in", p)
-          
-          manifest = Path("android/app/src/main/AndroidManifest.xml")
-          if manifest.exists():
-              mtxt = manifest.read_text()
-              perms = """    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n"""
-              if "android.permission.INTERNET" not in mtxt:
-                  mtxt = mtxt.replace("<application", perms + "    <application")
-                  manifest.write_text(mtxt)
-                  print("Added permissions to AndroidManifest.xml")
-          PYEOF
+          python3 scripts/prepare_android.py
 
       - name: Install dependencies
         run: flutter pub get
@@ -64,10 +40,9 @@ jobs:
             exit $EXIT_CODE
           fi
 
-      - name: Locate generated APK
+      - name: Locate built APK
         run: |
-          echo "Built APK files:"
-          find build -name "*.apk" || true
+          find . -name "*.apk"
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
