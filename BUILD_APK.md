@@ -9,7 +9,7 @@ bash build_apk.sh
 ```
 
 The script will:
-1. Verify Flutter is installed (install from https://docs.flutter.dev/get-started/install if not)
+1. Verify Flutter >= 3.38.1 is installed (install from https://docs.flutter.dev/get-started/install if not)
 2. Download the Amiri font (required for Arabic video captions)
 3. Enable `assets:` in pubspec.yaml and set `minSdkVersion 24`
 4. Run `flutter pub get`

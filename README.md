@@ -45,8 +45,8 @@ Any OpenAI-compatible provider works: OpenAI, OpenRouter, Groq, etc.
 The key never leaves the device except to the configured endpoint.
 
 ### Android notes
-- `minSdkVersion 24` is required by ffmpeg_kit (edit
-  `android/app/build.gradle`).
+- `minSdk 24` is required by ffmpeg_kit. `build_apk.sh` and the GitHub
+  workflow set it in `android/app/build.gradle` or `build.gradle.kts`.
 - ffmpeg_kit 6.0.3 bundles FFmpeg 6.0; the upstream plugin is archived but the
   pub.dev build is stable. A community fork (`ffmpeg_kit` by arthenica
   successors) can be swapped later without code changes.

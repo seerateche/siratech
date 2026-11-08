@@ -8,6 +8,21 @@ cd "$(dirname "$0")"
 
 echo "==> [1/6] Checking Flutter..."
 flutter --version >/dev/null || { echo "Flutter not found. Install: https://docs.flutter.dev/get-started/install"; exit 1; }
+python3 - <<'PYEOF'
+import re, subprocess, sys
+out = subprocess.check_output(["flutter", "--version"], text=True, stderr=subprocess.STDOUT)
+m = re.search(r"Flutter (\d+)\.(\d+)\.(\d+)", out)
+if not m:
+    sys.exit("Could not parse Flutter version:\n" + out)
+ver = tuple(int(x) for x in m.groups())
+need = (3, 38, 1)
+if ver < need:
+    sys.exit(
+        "Flutter %s is too old. Need >= 3.38.1 (Dart >= 3.10) for share_plus 13 and file_picker 12."
+        % ".".join(map(str, ver))
+    )
+print("    Flutter %s OK" % ".".join(map(str, ver)))
+PYEOF
 
 echo "==> [2/6] Adding Amiri font (required for Arabic captions)..."
 if [ ! -f assets/fonts/Amiri.ttf ]; then
@@ -24,7 +39,7 @@ if [ ! -f assets/fonts/Amiri.ttf ]; then
 fi
 
 echo "==> [2b/6] Regenerating missing native Android project files (gradle, wrapper, MainActivity)..."
-if [ ! -f android/app/build.gradle ]; then
+if [ ! -f android/app/build.gradle ] && [ ! -f android/app/build.gradle.kts ]; then
   flutter create --platforms=android --org com.siratech.studio .
 fi
 
@@ -36,16 +51,35 @@ s = s.replace("  # assets:\n  #   - assets/fonts/Amiri.ttf",
 open("pubspec.yaml","w").write(s)
 PYEOF
 
-echo "==> [4/6] Setting minSdkVersion 24 in android/app/build.gradle..."
-if [ -f android/app/build.gradle ]; then
-  sed -i.bak 's/minSdkVersion [0-9]*/minSdkVersion 24/' android/app/build.gradle
-  sed -i.bak 's/minSdk = [0-9]*/minSdk = 24/' android/app/build.gradle
-  sed -i.bak 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' android/app/build.gradle
-  sed -i.bak 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/' android/app/build.gradle
-  sed -i.bak 's/compileSdk flutter.compileSdkVersion/compileSdk 36/' android/app/build.gradle
-  sed -i.bak 's/compileSdkVersion [0-9]\+/compileSdkVersion 36/' android/app/build.gradle
-  sed -i.bak 's/compileSdk = [0-9]\+/compileSdk = 36/' android/app/build.gradle
-fi
+echo "==> [4/6] Setting minSdk 24 (ffmpeg_kit) in the app Gradle file..."
+python3 - <<'PYEOF'
+import re
+from pathlib import Path
+
+targets = [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")]
+present = [p for p in targets if p.exists()]
+if not present:
+    raise SystemExit("android/app/build.gradle(.kts) missing after flutter create")
+
+def floor_min_sdk(text: str, path: Path) -> str:
+    new, n1 = re.subn(
+        r"minSdk\s*=\s*(?:flutter\.minSdkVersion|\d+)",
+        "minSdk = 24",
+        text,
+    )
+    new, n2 = re.subn(
+        r"minSdkVersion\s+(?:flutter\.minSdkVersion|\d+)",
+        "minSdkVersion 24",
+        new,
+    )
+    if n1 + n2 == 0 or ("minSdk = 24" not in new and "minSdkVersion 24" not in new):
+        raise SystemExit(f"could not set minSdk 24 in {path}")
+    return new
+
+for path in present:
+    path.write_text(floor_min_sdk(path.read_text(), path))
+    print(f"    minSdk 24 set in {path}")
+PYEOF
 
 echo "==> [5/6] flutter pub get..."
 flutter pub get
