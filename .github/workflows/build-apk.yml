@@ -28,14 +28,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze Dart code
+        run: flutter analyze
+
       - name: Build APK (Release)
         run: |
           set +e
           flutter build apk --release > build_out.txt 2>&1
           EXIT_CODE=$?
           if [ $EXIT_CODE -ne 0 ]; then
-            tail -n 50 build_out.txt
-            ERR_MSG=$(tail -n 15 build_out.txt | tr '\n' ' ' | sed 's/"//g')
+            cat build_out.txt
+            ERR_MSG=$(grep -E "(Error|Exception|failed):" build_out.txt | head -n 5 | tr '\n' ' ' | sed 's/"//g')
             echo "::error title=BuildFailure::$ERR_MSG"
             exit $EXIT_CODE
           fi
