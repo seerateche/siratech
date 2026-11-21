@@ -33,10 +33,8 @@ flutter run            # Android device/emulator
 
 ### Fonts (one manual step — REQUIRED for Arabic video captions)
 FFmpeg's drawtext cannot shape Arabic by itself. The app reshapes text in Dart
-(`arabic_reshaper`) and needs an Arabic font file:
-1. Download **Amiri** (SIL OFL): https://fonts.google.com/specimen/Amiri
-2. Put `Amiri.ttf` in `assets/fonts/`
-3. Uncomment the `assets:` block in `pubspec.yaml`
+(`arabic_reshaper`) and needs an Arabic font file. The font **Amiri** (SIL OFL)
+is already bundled at `assets/fonts/Amiri.ttf` and declared in `pubspec.yaml`.
 Without it, captions render as empty boxes.
 
 ### LLM configuration

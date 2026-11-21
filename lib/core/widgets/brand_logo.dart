@@ -33,7 +33,7 @@ class BrandLogo extends StatelessWidget {
           height: 1.2,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.transparent, AppColors.gold.withOpacity(0.7), Colors.transparent],
+              colors: [Colors.transparent, AppColors.gold.withValues(alpha: 0.7), Colors.transparent],
             ),
           ),
         ),

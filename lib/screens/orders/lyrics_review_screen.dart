@@ -31,6 +31,15 @@ class _LyricsReviewScreenState extends ConsumerState<LyricsReviewScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _v1.dispose();
+    _v2.dispose();
+    _chorus.dispose();
+    _style.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     final o = await ref.read(orderRepositoryProvider).byId(widget.orderId);
     if (!mounted || o == null) return;
