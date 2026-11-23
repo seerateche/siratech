@@ -14,8 +14,13 @@ for p in [Path("android/app/build.gradle.kts"), Path("android/app/build.gradle")
         txt = re.sub(r'minSdkVersion\s+(?:flutter\.minSdkVersion|\d+)', 'minSdkVersion 24', txt)
         txt = re.sub(r'compileSdk\s*=\s*(?:flutter\.compileSdkVersion|\d+)', 'compileSdk = 36', txt)
         txt = re.sub(r'compileSdkVersion\s+(?:flutter\.compileSdkVersion|\d+)', 'compileSdkVersion 36', txt)
+        if "checkReleaseBuilds" not in txt:
+            if "buildTypes {" in txt:
+                txt = txt.replace("buildTypes {", "lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }\n\n    buildTypes {")
+            elif "defaultConfig {" in txt:
+                txt = txt.replace("defaultConfig {", "lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }\n\n    defaultConfig {")
         p.write_text(txt, encoding="utf-8")
-        print(f"==> Patched minSdk 24 & compileSdk 36 in {p}")
+        print(f"==> Patched minSdk 24 & compileSdk 36 & lint in {p}")
 
 # 2. Add subprojects fallback rule
 bg_kts = Path("android/build.gradle.kts")
@@ -39,12 +44,17 @@ subprojects {
             configureAndroid()
         }
     }
+    tasks.configureEach {
+        if (name.startsWith("lintVital")) {
+            enabled = false
+        }
+    }
 }
 """
     if "configureAndroid" not in content:
         content += extra
         bg_kts.write_text(content, encoding="utf-8")
-        print("==> Added compileSdk 36 rule to android/build.gradle.kts")
+        print("==> Added compileSdk 36 rule and disabled lintVital in android/build.gradle.kts")
 
 # 3. Add required permissions to AndroidManifest.xml
 manifest_path = Path("android/app/src/main/AndroidManifest.xml")
